@@ -1,0 +1,4 @@
+# tapl-hs
+```
+stack test
+```
