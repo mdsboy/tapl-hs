@@ -1,36 +1,42 @@
-module ArithSpec (spec) where
+module ArithSpec
+    ( spec
+    )
+where
 
 import           Test.Hspec
-import           Arith
+import           Arith.Parse
+import           Arith.Eval
+
+exec :: String -> Term
+exec str = case parseStr str of
+    Right terms -> eval terms
+    Left  err   -> error $ show err
 
 spec :: Spec
-spec = describe "eval" $ do
-  it "eval (iszero 0) => True" $ eval (TmIsZero TmZero) `shouldBe` TmTrue
+spec = describe "exec" $ do
+    it "exec (iszero 0) => true" $ exec "iszero 0" `shouldBe` TmTrue
 
-  it "eval (iszero (succ 0)) => False"
-    $          eval (TmIsZero (TmSucc TmZero))
-    `shouldBe` TmFalse
+    it "exec (iszero (succ 0)) => false"
+        $          exec "iszero (succ 0)"
+        `shouldBe` TmFalse
 
-  it "eval (iszero (pred (succ 0)) => True"
-    $          eval (TmIsZero (TmPred (TmSucc TmZero)))
-    `shouldBe` TmTrue
+    it "eval (iszero (pred (succ 0))) => true"
+        $          exec "iszero (pred succ 0)"
+        `shouldBe` TmTrue
 
-  it "eval (if (iszero 0) True False) => True"
-    $          eval (TmIf (TmIsZero TmZero) TmTrue TmFalse)
-    `shouldBe` TmTrue
+    it "eval (if (iszero 0) then true else false) => true"
+        $          exec "if (iszero 0) then true else false"
+        `shouldBe` TmTrue
 
-  it "eval (if (iszero (succ 0)) True False) => False"
-    $          eval (TmIf (TmIsZero (TmSucc TmZero)) TmTrue TmFalse)
-    `shouldBe` TmFalse
+    it "eval (if (iszero (succ 0)) then true else false) => false"
+        $          exec "if (iszero (succ 0)) then true else false"
+        `shouldBe` TmFalse
 
-  it "eval (if (iszero 0) (succ 0) 0) => True"
-    $          eval (TmIf (TmIsZero TmZero) (TmSucc TmZero) TmZero)
-    `shouldBe` (TmSucc TmZero)
+    it "eval (if (iszero 0) then (succ 0) else 0) => (succ 0)"
+        $          exec "if (iszero 0) then (succ 0) else 0"
+        `shouldBe` (TmSucc TmZero)
 
-  it "nesting if example"
-    $          eval (TmIf condTerm thenTerm elseTerm)
-    `shouldBe` (TmSucc TmZero)
- where
-  condTerm = TmIf TmTrue TmFalse TmTrue
-  thenTerm = TmIf TmTrue TmZero (TmSucc TmZero)
-  elseTerm = TmIf TmTrue (TmSucc TmZero) (TmSucc (TmPred TmZero))
+    it "nesting if example"
+        $          exec
+                       "if (if true then false else true) then (if true then 0 else 0) else (if true then (succ 0) else (succ pred 0))"
+        `shouldBe` (TmSucc TmZero)

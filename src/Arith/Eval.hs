@@ -1,7 +1,7 @@
-module Arith
-  ( eval
-  , Term(..)
-  )
+module Arith.Eval
+    ( eval
+    , Term(..)
+    )
 where
 
 data Term =
@@ -31,8 +31,8 @@ eval1 (TmIsZero t)                             = TmIsZero <$> eval1 t
 
 eval :: Term -> Term
 eval t = case eval1 t of
-  Just t' -> eval t'
-  Nothing -> t
+    Just t' -> eval t'
+    Nothing -> t
 
 isNumericVal :: Term -> Bool
 isNumericVal TmZero      = True
