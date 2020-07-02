@@ -4,8 +4,9 @@ module ArithSpec
 where
 
 import           Test.Hspec
-import           Arith.Parse
+import           Arith.Syntax
 import           Arith.Eval
+import           Arith.Parse
 
 exec :: String -> Term
 exec str = case parseStr str of

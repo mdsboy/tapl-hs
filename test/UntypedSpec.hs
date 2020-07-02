@@ -1,24 +1,25 @@
+
 module UntypedSpec
     ( spec
     )
 where
 
 import           Test.Hspec
-import           Untyped
+import           Untyped.Syntax
+import           Untyped.Eval
+import           Untyped.Parse
+
+exec :: String -> String
+exec str = case parseStr str of
+    Right terms -> showTm newCtx $ eval terms
+    Left  err   -> error $ show err
 
 spec :: Spec
-spec = describe "eval" $ do
-    it "eval (λx.x) => (λx.x)"
-        $          eval (TmAbs "x" (TmVar 0))
-        `shouldBe` (TmAbs "x" (TmVar 0))
+spec = describe "exec" $ do
+    it "eval (λx.x) => (λx.x)" $ exec "(λx.x)" `shouldBe` "(λx.x)"
 
-    it "eval (λx.x)(λx.x) => (λx.x)"
-        $          eval (TmApp (TmAbs "x" (TmVar 0)) (TmAbs "x" (TmVar 0)))
-        `shouldBe` (TmAbs "x" (TmVar 0))
+    it "eval (λx.x)(λx.x) => (λx.x)" $ exec "(λx.x)(λx.x)" `shouldBe` "(λx.x)"
 
-    it "eval (λx.(λy.yx))(λa.a) => (λy.y(λa.a))"
-        $          eval
-                       (TmApp (TmAbs "x" (TmAbs "y" (TmApp (TmVar 0) (TmVar 1))))
-                              (TmAbs "a" (TmVar 0))
-                       )
-        `shouldBe` (TmAbs "y" (TmApp (TmVar 0) (TmAbs "a" (TmVar 0))))
+    it "eval (λx.(λy.y x))(λa.a) => (λy.(y (λa.a)))"
+        $          exec "(λx.(λy.y x))(λa.a)"
+        `shouldBe` "(λy.(y (λa.a)))"
