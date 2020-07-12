@@ -1,15 +1,15 @@
 module Arith.Eval
-    ( eval
-    , Term(..)
-    )
+  ( eval
+  , Term(..)
+  )
 where
 
 import           Arith.Syntax
 
 eval :: Term -> Term
 eval t = case eval1 t of
-    Just t' -> eval t'
-    Nothing -> t
+  Just t' -> eval t'
+  Nothing -> t
 
 eval1 :: Term -> Maybe Term
 eval1 TmTrue                                   = Nothing

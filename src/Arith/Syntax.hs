@@ -1,6 +1,6 @@
 module Arith.Syntax
-    ( Term(..)
-    )
+  ( Term(..)
+  )
 where
 
 data Term =

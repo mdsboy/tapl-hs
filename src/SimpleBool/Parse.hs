@@ -1,9 +1,9 @@
-module Untyped.Parse
+module SimpleBool.Parse
   ( parseStr
   )
 where
 
-import           Untyped.Syntax
+import           SimpleBool.Syntax
 import           Data.Functor.Identity
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
@@ -25,6 +25,21 @@ lexeme = L.lexeme sc
 symbol :: String -> Parser String
 symbol = L.symbol sc
 
+parseTrue :: Parser Term
+parseTrue = symbol "true" >> return TmTrue
+
+parseFalse :: Parser Term
+parseFalse = symbol "false" >> return TmFalse
+
+parseIf :: Context -> Parser Term
+parseIf ctx = do
+  symbol "if"
+  t1 <- parseTerm ctx
+  symbol "then"
+  t2 <- parseTerm ctx
+  symbol "else"
+  TmIf t1 t2 <$> parseTerm ctx
+
 parseBrackets :: Context -> Parser Term
 parseBrackets ctx = do
   symbol "("
@@ -32,23 +47,42 @@ parseBrackets ctx = do
   symbol ")"
   return term
 
+parseVarName :: Parser String
+parseVarName = do
+  let parse = lexeme $ some alphaNumChar
+  var <- lookAhead $ parse
+  if var == "then" || var == "else" then fail "then or else" else parse
+
 parseVar :: Context -> Parser Term
 parseVar ctx = do
-  var <- lexeme $ some alphaNumChar
+  var <- parseVarName
   idx <- case getVarIndex ctx var of
     Just i  -> return i
-    Nothing -> error "cannot find variable"
+    Nothing -> error ("cannot find variable " ++ var)
   return $ TmVar idx (length ctx)
+
+parseType :: Parser Ty
+parseType =
+  symbol "Bool" >> (symbol "->" >> TyArr TyBool <$> parseType) <|> return TyBool
 
 parseAbs :: Context -> Parser Term
 parseAbs ctx = do
   symbol "λ"
-  var <- lexeme $ some alphaNumChar
+  var <- parseVarName
+  symbol ":"
+  ty <- parseType
   symbol "."
   term <- parseTerm $ bindVarName var ctx
-  return $ TmAbs var term
+  return $ TmAbs var ty term
 
 parseTerm :: Context -> Parser Term
 parseTerm ctx = do
-  t1 <- choice [parseBrackets ctx, parseAbs ctx, parseVar ctx]
+  t1 <- choice
+    [ parseTrue
+    , parseFalse
+    , parseIf ctx
+    , parseBrackets ctx
+    , parseAbs ctx
+    , parseVar ctx
+    ]
   (TmApp t1 <$> parseTerm ctx) <|> return t1
