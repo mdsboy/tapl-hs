@@ -37,7 +37,7 @@ parseVar ctx = do
   var <- lexeme $ some alphaNumChar
   idx <- case getVarIndex ctx var of
     Just i  -> return i
-    Nothing -> error "cannot find variable"
+    Nothing -> error ("cannot find variable " ++ var)
   return $ TmVar idx (length ctx)
 
 parseAbs :: Context -> Parser Term

@@ -25,6 +25,8 @@ lexeme = L.lexeme sc
 symbol :: String -> Parser String
 symbol = L.symbol sc
 
+keywords = ["true", "false", "if", "then", "else", "Bool", "λ"]
+
 parseTrue :: Parser Term
 parseTrue = symbol "true" >> return TmTrue
 
@@ -51,7 +53,7 @@ parseVarName :: Parser String
 parseVarName = do
   let parse = lexeme $ some alphaNumChar
   var <- lookAhead $ parse
-  if var == "then" || var == "else" then fail "then or else" else parse
+  if elem var keywords then fail "conflict keywords" else parse
 
 parseVar :: Context -> Parser Term
 parseVar ctx = do

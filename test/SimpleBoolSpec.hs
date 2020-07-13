@@ -7,6 +7,7 @@ import           Test.Hspec
 import           SimpleBool.Syntax
 import           SimpleBool.Eval
 import           SimpleBool.Parse
+import           Control.Monad
 
 exec :: String -> String
 exec str = case parseStr str of
@@ -16,27 +17,14 @@ exec str = case parseStr str of
   Left err -> error $ show err
 
 spec :: Spec
-spec = describe "exec" $ do
-  it "eval (λx: Bool.x) => (λx: Bool.x) : Bool -> Bool"
-    $          exec "(λx: Bool.x)"
-    `shouldBe` "(λx.x) : Bool -> Bool"
-
-  it "eval (λx: Bool -> Bool.x)(λx:Bool.x) => (λx.x) : Bool -> Bool"
-    $          exec "(λx: Bool -> Bool.x)(λx:Bool.x)"
-    `shouldBe` "(λx.x) : Bool -> Bool"
-
-  it "eval (λx: Bool.x)(λx:Bool.x) => parameter type mismatch"
-    $          exec "(λx: Bool.x)(λx:Bool.x)"
-    `shouldBe` "parameter type mismatch"
-
-  it "eval (λx: Bool.true) => (λx: Bool.x) : Bool -> Bool"
-    $          exec "(λx: Bool.true)"
-    `shouldBe` "(λx.true) : Bool -> Bool"
-
-  it "eval (λx: Bool.true) false => true : Bool"
-    $          exec "(λx: Bool.true) false"
-    `shouldBe` "true : Bool"
-
-  it "eval (λx: Bool. if x then true else x) false => false : Bool"
-    $          exec "(λx: Bool. if x then true else x) false"
-    `shouldBe` "false : Bool"
+spec = describe "exec" $ forM_ tests $ \(input, expected) ->
+  it (input ++ " => " ++ expected) $ exec input `shouldBe` expected
+ where
+  tests =
+    [ ("(λx: Bool.x)"                           , "(λx.x) : Bool -> Bool")
+    , ("(λx: Bool -> Bool.x)(λx:Bool.x)"        , "(λx.x) : Bool -> Bool")
+    , ("(λx: Bool.x)(λx:Bool.x)"                , "parameter type mismatch")
+    , ("(λx: Bool.true)"                        , "(λx.true) : Bool -> Bool")
+    , ("(λx: Bool.true) false"                  , "true : Bool")
+    , ("(λx: Bool. if x then true else x) false", "false : Bool")
+    ]
