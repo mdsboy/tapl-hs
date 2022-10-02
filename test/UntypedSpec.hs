@@ -3,11 +3,11 @@ module UntypedSpec
   )
 where
 
+import           Control.Monad
 import           Test.Hspec
-import           Untyped.Syntax
 import           Untyped.Eval
 import           Untyped.Parse
-import           Control.Monad
+import           Untyped.Syntax
 
 exec :: String -> String
 exec str = case parseStr str of

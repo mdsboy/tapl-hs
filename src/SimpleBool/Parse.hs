@@ -3,13 +3,13 @@ module SimpleBool.Parse
   )
 where
 
-import           SimpleBool.Syntax
 import           Data.Functor.Identity
+import           Data.Void
+import           SimpleBool.Syntax
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
-import qualified Text.Megaparsec.Char.Lexer    as L
+import qualified Text.Megaparsec.Char.Lexer as L
 import           Text.Megaparsec.Debug
-import           Data.Void
 
 type Parser = Parsec Void String
 
@@ -53,7 +53,7 @@ parseVarName :: Parser String
 parseVarName = do
   let parse = lexeme $ some alphaNumChar
   var <- lookAhead $ parse
-  if elem var keywords then fail "conflict keywords" else parse
+  if var `elem` keywords then fail "conflict keywords" else parse
 
 parseVar :: Context -> Parser Term
 parseVar ctx = do

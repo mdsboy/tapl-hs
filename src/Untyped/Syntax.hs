@@ -22,10 +22,10 @@ newCtx :: Context
 newCtx = []
 
 printTm :: Context -> Term -> String
-printTm ctx (TmAbs x t1) = "(λ" ++ x' ++ "." ++ (printTm ctx' t1) ++ ")"
+printTm ctx (TmAbs x t1) = "(λ" ++ x' ++ "." ++ printTm ctx' t1 ++ ")"
   where (ctx', x') = pickFreshName ctx x
 printTm ctx (TmApp t1 t2) =
-  "(" ++ (printTm ctx t1) ++ " " ++ (printTm ctx t2) ++ ")"
+  "(" ++ printTm ctx t1 ++ " " ++ printTm ctx t2 ++ ")"
 printTm ctx (TmVar x n) | length ctx == n = indexToName ctx x
                         | otherwise       = "bad index"
 

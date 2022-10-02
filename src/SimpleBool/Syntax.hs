@@ -38,21 +38,21 @@ newCtx :: Context
 newCtx = []
 
 printTm :: Context -> Term -> String
-printTm ctx (TmAbs x ty t1) = "(λ" ++ x' ++ "." ++ (printTm ctx' t1) ++ ")"
+printTm ctx (TmAbs x ty t1) = "(λ" ++ x' ++ "." ++ printTm ctx' t1 ++ ")"
   where (ctx', x') = pickFreshName ctx x
 printTm ctx (TmApp t1 t2) =
-  "(" ++ (printTm ctx t1) ++ " " ++ (printTm ctx t2) ++ ")"
+  "(" ++ printTm ctx t1 ++ " " ++ printTm ctx t2 ++ ")"
 printTm ctx (TmVar x n) | length ctx == n = indexToName ctx x
                         | otherwise       = "bad index"
 printTm ctx TmTrue  = "true"
 printTm ctx TmFalse = "false"
 printTm ctx (TmIf t1 t2 t3) =
   "if "
-    ++ (printTm ctx t1)
+    ++ printTm ctx t1
     ++ " then "
-    ++ (printTm ctx t2)
+    ++ printTm ctx t2
     ++ " else "
-    ++ (printTm ctx t3)
+    ++ printTm ctx t3
 
 bindVarName :: String -> Context -> Context
 bindVarName varname ctx = (varname, NameBind) : ctx
@@ -88,7 +88,7 @@ getTypeFromContext ctx i = case getBinding ctx i of
     )
 
 printType :: Ty -> String
-printType (TyArr ty1 ty2) = (printType ty1) ++ " -> " ++ (printType ty2)
+printType (TyArr ty1 ty2) = printType ty1 ++ " -> " ++ printType ty2
 printType TyBool          = "Bool"
 
 typeOf :: Context -> Term -> Either String Ty
@@ -109,7 +109,7 @@ typeOf ctx (TmApp t1 t2) = case tyT1 of
   tyT2 = typeOf ctx t2
 typeOf ctx TmTrue          = Right TyBool
 typeOf ctx TmFalse         = Right TyBool
-typeOf ctx (TmIf t1 t2 t3) = if (typeOf ctx t1) == Right TyBool
+typeOf ctx (TmIf t1 t2 t3) = if typeOf ctx t1 == Right TyBool
   then
     let tyT2 = typeOf ctx t2
         tyT3 = typeOf ctx t3

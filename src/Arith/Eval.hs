@@ -7,9 +7,7 @@ where
 import           Arith.Syntax
 
 eval :: Term -> Term
-eval t = case eval1 t of
-  Just t' -> eval t'
-  Nothing -> t
+eval t = maybe t eval (eval1 t)
 
 eval1 :: Term -> Maybe Term
 eval1 TmTrue                                   = Nothing

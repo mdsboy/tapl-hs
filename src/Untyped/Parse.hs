@@ -3,13 +3,13 @@ module Untyped.Parse
   )
 where
 
-import           Untyped.Syntax
 import           Data.Functor.Identity
+import           Data.Void
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
-import qualified Text.Megaparsec.Char.Lexer    as L
+import qualified Text.Megaparsec.Char.Lexer as L
 import           Text.Megaparsec.Debug
-import           Data.Void
+import           Untyped.Syntax
 
 type Parser = Parsec Void String
 

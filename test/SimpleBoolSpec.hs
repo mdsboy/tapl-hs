@@ -3,16 +3,16 @@ module SimpleBoolSpec
   )
 where
 
-import           Test.Hspec
-import           SimpleBool.Syntax
+import           Control.Monad
 import           SimpleBool.Eval
 import           SimpleBool.Parse
-import           Control.Monad
+import           SimpleBool.Syntax
+import           Test.Hspec
 
 exec :: String -> String
 exec str = case parseStr str of
   Right terms -> case typeOf newCtx terms of
-    Right ty  -> (printTm newCtx $ eval terms) ++ " : " ++ (printType ty)
+    Right ty  -> printTm newCtx (eval terms) ++ " : " ++ printType ty
     Left  err -> err
   Left err -> error $ show err
 
