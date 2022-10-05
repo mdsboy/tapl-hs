@@ -18,8 +18,7 @@ data Term =
 
 type Context = [String]
 
-newCtx :: Context
-newCtx = []
+------------------------   Printing  ------------------------
 
 printTm :: Context -> Term -> String
 printTm ctx (TmAbs x t1) = "(λ" ++ x' ++ "." ++ printTm ctx' t1 ++ ")"
@@ -28,6 +27,11 @@ printTm ctx (TmApp t1 t2) =
   "(" ++ printTm ctx t1 ++ " " ++ printTm ctx t2 ++ ")"
 printTm ctx (TmVar x n) | length ctx == n = indexToName ctx x
                         | otherwise       = "bad index"
+
+------------------------   Context management  ------------------------
+
+newCtx :: Context
+newCtx = []
 
 bindVarName :: String -> Context -> Context
 bindVarName varname ctx = varname : ctx
@@ -47,4 +51,3 @@ indexToName ctx x = ctx !! x
 
 getVarIndex :: Context -> String -> Maybe Int
 getVarIndex ctx var = elemIndex var ctx
-

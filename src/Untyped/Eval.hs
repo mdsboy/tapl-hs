@@ -5,6 +5,8 @@ where
 
 import           Untyped.Syntax
 
+------------------------   Evaluation  ------------------------
+
 eval :: Term -> Term
 eval t = maybe t eval (eval1 t)
 
@@ -18,8 +20,19 @@ isVal :: Term -> Bool
 isVal (TmAbs _ _) = True
 isVal _           = False
 
+------------------------   Substitution  ------------------------
+
 termSubstTop :: Term -> Term -> Term
 termSubstTop s t = termShift (-1) (termSubst 0 (termShift 1 s) t)
+
+termSubst :: Int -> Term -> Term -> Term
+termSubst j s = tmmap f 0
+ where
+  f :: Int -> Int -> Int -> Term
+  f c x n | x == j + c = termShift c s
+          | otherwise  = TmVar x n
+
+------------------------   Shifting  ------------------------
 
 termShift :: Int -> Term -> Term
 termShift d = termShiftRec d 0
@@ -31,12 +44,6 @@ termShiftRec d = tmmap f
   f c x n | x >= c    = TmVar (x + d) (n + d)
           | otherwise = TmVar x (n + d)
 
-termSubst :: Int -> Term -> Term -> Term
-termSubst j s = tmmap f 0
- where
-  f :: Int -> Int -> Int -> Term
-  f c x n | x == j + c = termShift c s
-          | otherwise  = TmVar x n
 
 tmmap :: (Int -> Int -> Int -> Term) -> Int -> Term -> Term
 tmmap onvar c (TmVar x  n ) = onvar c x n
